@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import { JOINING_VOICE_CHANNELS, VOICE_CLIENTS } from "../../..";
+import { JOINING_VOICE_CHANNELS, VOICE_CLIENTS, sperkersData } from "../../..";
 import { VoiceClient } from "../../libs/voice";
 
 // FFmpegのパス設定
@@ -39,7 +39,16 @@ export async function handleSpeak(message: Message): Promise<void> {
         }
         
         // 2. 再生
-        await voiceClient.speak(content, "VOICEVOX:春日部つむぎ（ノーマル）")
+        const sperker = sperkersData.speakers[message.author.id] ?? "VOICEVOX:春日部つむぎ（ノーマル）";
+        const replacedContent = sperkersData.dictionary.reduce((text: string, entry: any) => {
+            if (entry.useRegex) {
+                const regex = new RegExp(entry.word, 'g');
+                return text.replace(regex, entry.replacement);
+            }
+            return text.split(entry.word).join(entry.replacement);
+        }, content);
+
+        await voiceClient.speak(replacedContent, sperker);
         
     } catch (e) {
         console.error("Error in handleSpeak:", e);

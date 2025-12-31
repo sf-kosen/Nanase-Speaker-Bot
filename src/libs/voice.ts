@@ -9,7 +9,7 @@ const API_KEY = "Q411563_2-i_70P";
 const MAX_TEXT_LENGTH = 100;
 const REPLACES: { pattern: RegExp; replace: string }[] = [
     { pattern: /```[\s\S]*?```|``[\s\S]*?``|`[^`]*`/g, replace: "コード省略" }, // バッククオート囲みのコードをまとめて省略
-    { pattern: /<(#|@|id:).*>/g,                       replace: "メンション省略" }, // メンションをメンション省略に
+    { pattern: /<(#|@|id:|:).*>/g,                       replace: "メンション省略" }, // メンションをメンション省略に
     { pattern: /https?:\/\/\S+(?=\s|$)/g,              replace: "URL省略" }, // URL除去
     { pattern: /\s+/g,                                 replace: " " }, // 連続する空白を単一の空白に
     { pattern: /@/g,                                   replace: "アットマーク" }, // @をアットマークに

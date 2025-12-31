@@ -1,14 +1,11 @@
 import {
     Client,
     GatewayIntentBits,
-    ModalSubmitInteraction,
-    ButtonInteraction,
     Interaction,
     CacheType,
 } from "discord.js";
 import { VoiceConnection } from "@discordjs/voice";
-import { Command, ModalCommand, ButtonCommand } from "./types/command";
-import { Action, Actions } from "./types/action";
+import { Command } from "./types/command";
 import { VoiceClient } from "./libs/voice";
 import { handleSpeak } from "./handlers/vc/speak";
 import { handleVcJoin } from "./handlers/vc/join";
@@ -16,6 +13,7 @@ import { handleVcLeave } from "./handlers/vc/leave";
 import { handleVcLogger } from "./handlers/vc/logger";
 import { loadCommands } from "./utils/loader";
 import dotenv from "dotenv";
+import fs from "fs";
 
 
 export const JOINING_VOICE_CHANNELS = new Map<string, VoiceConnection>(); // channels -> VoiceConnection
@@ -29,6 +27,11 @@ const IS_PRODUCTION = FILE_TYPE === ".js";
 const BASE_DIR = IS_PRODUCTION ? "./dist" : "./src";
 
 const commands: { [key: string]: Command } = loadCommands(BASE_DIR, FILE_TYPE);
+
+if (!fs.readdirSync("./").includes("speakers.json")) {
+    fs.writeFileSync("./speakers.json", JSON.stringify({ speakers: {}, dictionary: [] }));
+}
+const sperkersData = JSON.parse(fs.readFileSync("./speakers.json", "utf-8"));
 
 console.log("Registering commands...");
 
@@ -101,5 +104,5 @@ client.on("voiceStateUpdate", handleVcLogger);
 client.on("voiceStateUpdate", handleVcJoin);
 client.on("voiceStateUpdate", handleVcLeave);
 
-export { FILE_TYPE, client, commands };
+export { FILE_TYPE, client, commands, sperkersData };
 client.login(process.env.DISCORD_TOKEN);
