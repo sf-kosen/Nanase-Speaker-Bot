@@ -95,7 +95,21 @@ class VoiceClient {
         await this.play(uri.toString());
     }
 
+    private static isYoutubeUrl(url: string): boolean {
+        try {
+            const parsed = new URL(url);
+            const hostname = parsed.hostname.replace(/^www\./, '');
+            return (hostname === 'youtube.com' || hostname === 'youtu.be' || hostname === 'm.youtube.com' || hostname === 'music.youtube.com');
+        } catch {
+            return false;
+        }
+    }
+
     async youtube(url: string): Promise<string> {
+        if (!VoiceClient.isYoutubeUrl(url)) {
+            throw new Error("Invalid URL: YouTube URLs (youtube.com, youtu.be) only.");
+        }
+
         const response = await fetch("https://oo6o8y6la6.execute-api.eu-central-1.amazonaws.com/default/Upload-DownloadYoutubeLandingPage", {
             method: "POST",
             headers: {

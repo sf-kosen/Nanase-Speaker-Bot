@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { SPERKERS } from '../types/voicebox';
 import { Command } from '../types/command';
 import { sperkersData } from '..';
@@ -9,6 +9,7 @@ export default {
     data: {
         name: 'set-speaker',
         description: '話者を設定します。',
+        default_member_permissions: PermissionFlagsBits.SendMessages.toString(),
         defer: true,
         options: [
             {

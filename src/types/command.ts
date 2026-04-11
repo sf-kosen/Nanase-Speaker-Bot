@@ -4,7 +4,8 @@ interface Command {
     data: {
         name: string;        // コマンド名（英語小文字とハイフンのみだったはず）
         description: string; // コマンドの説明（自由。長すぎずシンプルに）
-        flags: number;       // レスポンスのフラグ。荒らし防止のためEphemeral推奨
+        flags?: number;       // レスポンスのフラグ。荒らし防止のためEphemeral推奨
+        default_member_permissions?: string; // 必要な権限（PermissionFlagsBitsのビット値文字列）
         defer?: boolean;      // コマンド実行時にdeferを行うかどうか。処理に時間がかかる場合はtrue推奨
         options?: Array<{    // コマンドのオプション（引数）。不要なら省略可
             name: string;
