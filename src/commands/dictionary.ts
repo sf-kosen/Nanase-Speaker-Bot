@@ -1,13 +1,34 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { Command } from '../types/command';
 import { sperkersData } from '..';
 import path from 'path';
 import fs from 'fs';
 
+const MAX_REGEX_LENGTH = 100;
+
+/**
+ * Reject regex patterns that contain nested quantifiers (ReDoS risk).
+ * Examples: (a+)+, (a*)+, (a+)*, (a?)+, etc.
+ */
+function isSafeRegex(pattern: string): boolean {
+    if (pattern.length > MAX_REGEX_LENGTH) return false;
+    // Detect nested quantifiers: a group with a quantifier inside, followed by a quantifier
+    const nestedQuantifier = /(\((?:[^()]*[+*?])[^()]*\))[+*?{]/;
+    if (nestedQuantifier.test(pattern)) return false;
+    // Try to compile the regex to catch syntax errors
+    try {
+        new RegExp(pattern);
+    } catch {
+        return false;
+    }
+    return true;
+}
+
 export default {
     data: {
         name: 'dictionary',
         description: '辞書操作を行います。',
+        default_member_permissions: PermissionFlagsBits.ManageGuild.toString(),
         defer: true,
         options: [
             {
@@ -48,6 +69,17 @@ export default {
         const useRegex = interaction.options.getBoolean('use_regex', false) || false;
 
         if (mode === 'add') {
+            if (useRegex && !isSafeRegex(word)) {
+                const embed = new EmbedBuilder()
+                    .setTitle('辞書追加失敗')
+                    .setDescription(
+                        `正規表現パターンが無効または危険です。` +
+                        `パターンは${MAX_REGEX_LENGTH}文字以内で、ネストされた量指定子（例: \`(a+)+\`）は使用できません。`
+                    )
+                    .setColor(0xFF0000);
+                await interaction.followUp({ embeds: [embed] });
+                return;
+            }
             sperkersData.dictionary.push({ word, replacement, useRegex });
             fs.writeFileSync(path.join(__dirname, '../../dictionary.json'), JSON.stringify(sperkersData, null, 2), 'utf-8');
             const embed = new EmbedBuilder()
