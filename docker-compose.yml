@@ -1,0 +1,8 @@
+services:
+  nanase-speaker-bot:
+    container_name: nanase-speaker-bot
+    stdin_open: true
+    tty: true
+    build:
+      dockerfile: ./Dockerfile
+      context: .
