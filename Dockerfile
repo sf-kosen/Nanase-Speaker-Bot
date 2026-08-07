@@ -19,4 +19,5 @@ RUN npm ci --omit=dev
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
+USER node
 CMD ["node", "-r", "tsconfig-paths/register", "./build/index.js"]
